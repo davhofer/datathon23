@@ -13,15 +13,15 @@ from data import data_preprocessing, split_by_user
 import pickle
 import sys
 
-df_trainings = pd.read_csv('/Users/luc/Documents/Coding Adventures/datathon/data/trainings.csv')
-df_additional_features = pd.read_csv('/Users/luc/Documents/Coding Adventures/datathon/data/new_features.csv')
+df_trainings = pd.read_csv('/.../data/trainings.csv')
+df_additional_features = pd.read_csv('.../data/new_features.csv')
 features = data_preprocessing(df_trainings, df_additional_features, remove_type=False)
-with open('/Users/luc/Documents/Coding Adventures/datathon/data/runner_embeddings.pickle', 'rb') as f:
+with open('.../data/runner_embeddings.pickle', 'rb') as f:
     runner_embeddings = pickle.load(f)
 
 
 # Create the necessary splits to train a classifier
-df = pd.read_csv('features_with_embeddings.csv')
+df = pd.read_csv('.../features_with_embeddings.csv')
 
 labeled_data = df[~df['type'].isna()]
 unlabeled_data = df[df['type'].isna()]
@@ -33,7 +33,14 @@ X_unlabeled = unlabeled_data.drop('type', axis=1)
 
 # Define an objective function to optimize with Optuna
 def objective(trial):
-    # Define hyperparameter search spaces for the base models
+    """Defines a hyperparameter search space to be used with Optuna and tests them via cross-validation.
+
+    Args:
+        trial: An Optuna trial object.
+
+    Returns:
+        Average accuracy score of the cross-validation.
+    """
     xgb_params = {
         'n_estimators': trial.suggest_int('xgb_n_estimators', 100, 500),
         'learning_rate': trial.suggest_float('xgb_learning_rate', 0.001, 0.1),

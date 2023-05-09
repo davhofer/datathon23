@@ -5,8 +5,15 @@ from torch.utils.data import DataLoader, Dataset, TensorDataset
 import pickle
 import matplotlib.pyplot as plt
 
-# Define the autoencoder
+# Define the autoencoder class
 class AutoEncoder(nn.Module):
+    """Defines a simple autoencoder using two feedforward neural networks as an encoder and decoder.
+    Summarizes the input data in a lower-dimensional embedding.
+
+    Attributes:
+        input_size: An integer indicating the size of the flattened input array (number of runs * features per run).
+        embedding_size: An integer indicating the size of output embedding.
+    """
     def __init__(self, input_size, embedding_size):
         super(AutoEncoder, self).__init__()
         self.encoder = nn.Sequential(
@@ -27,6 +34,17 @@ class AutoEncoder(nn.Module):
 
 # Preprocess and prepare the data
 def prepare_data(runner_data):
+    """Prepares the data before its fed into the autoencoder.
+
+    Retrieves the data from the pandas DataFrame and normalizes it.
+    Then, the data is converted to a PyTorch Tensor, stacked and put in a dataloader.
+
+    Args:
+        runner_data: A list of Pandas dataframes, each one containing all runs for one runner.
+
+    Returns:
+        dataloader: A PyTorch DataLoader containing the stacked data.
+    """
     all_data = []
 
     for df in runner_data:
@@ -52,6 +70,19 @@ def prepare_data(runner_data):
 
 # Train the autoencoder
 def train_autoencoder(dataloader, input_size, embedding_size, epochs, learning_rate):
+    """Trains the autoencoder to create optimal low-dimensional embeddings.
+
+    Args:
+        dataloader: A PyTorch DataLoader containing the stacked data.
+        input_size: An integer indicating the size of the flattened input array (number of runs * features per run).
+        embedding_size: An integer indicating the size of output embedding.
+        epochs: An integer indicating the number of epochs to train the autoencoder.
+        learning_rate: A float indicating the learning rate for the optimizer.
+
+    Returns:
+        model: A PyTorch model containing the trained autoencoder.
+        loss_history: A list containing the loss values for each epoch.
+    """
     model = AutoEncoder(input_size, embedding_size)
     criterion = nn.MSELoss()
     optimizer = optim.Adam(model.parameters(), lr=learning_rate)
@@ -81,6 +112,11 @@ def train_autoencoder(dataloader, input_size, embedding_size, epochs, learning_r
 
 # Plot the loss evolution
 def plot_loss_evolution(loss_history):
+    """Plots the loss evolution during training (very janky, due to fast-paced nature of hackathon).
+
+    Args:
+        loss_history: A list containing the loss values for each epoch.
+    """
     plt.plot(loss_history)
     plt.xlabel('Epoch')
     plt.ylabel('Loss')
@@ -91,7 +127,7 @@ def plot_loss_evolution(loss_history):
 
 def main():
     # Read the data here from runner_feat_list.pickle in the data folder
-    with open('/Users/luc/Documents/Coding Adventures/datathon/data/runner_feat_list.pickle', 'rb') as f:
+    with open('.../data/runner_feat_list.pickle', 'rb') as f:
         runner_data = pickle.load(f)
 
     input_size = runner_data[0].shape[1]  # Input size is the number of features
@@ -118,7 +154,7 @@ def main():
     print(embeddings[1])
 
     #save the embeddings as a pickle file
-    with open('/Users/luc/Documents/Coding Adventures/datathon/data/runner_embeddings.pickle', 'wb') as f:
+    with open('.../data/runner_embeddings.pickle', 'wb') as f:
         pickle.dump(embeddings, f)
 
 if __name__ == "__main__":
