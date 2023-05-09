@@ -157,6 +157,8 @@ test_loader = DataLoader(test_data_list, batch_size=batch_size, shuffle=False)
 # Define the model
 class GAT(torch.nn.Module):
     """Defines a simple Graph Attention Network followed by an output MLP.
+    The idea is to use a fully connected graph of runs for each runner and use GAT to learn
+    which other runs are important for the prediction of the type of the run.
 
     Attributes:
         num_features: An integer indicating the input size.
